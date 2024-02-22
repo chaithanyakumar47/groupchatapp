@@ -17,15 +17,16 @@ async function userSignup(event) {
     
     try {
         const data = await axios.post('http://localhost:3000/user/signup',userData);
+        alert('Account Created Successfully!')
 
         // window.location.href = '../Login/login.html'
         
 
 
     } catch(err) {
-        console.log(err);
+        console.log(err.response.data.err);
         const parent = document.getElementById('error');
-        const child = `${err.message}`;
+        const child = `${err.response.data.err}`;
         parent.innerHTML = parent.innerHTML + child;
 
     }
