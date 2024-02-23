@@ -1,5 +1,12 @@
 const User = require('../Models/user');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+
+
+function generateAccessToken(id, name) {    
+    return jwt.sign({ userId: id, name: name }, 'eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTcwNTEzOTk0OSwiaWF0IjoxNzA1MTM5OTQ5fQ.u17qfbQbdIbKM0Cw4yx_qqxu_SyYWNaFsN5ia1tsOdc')
+
+}
 
 
 const signup = async (req, res, next) => {
@@ -39,7 +46,7 @@ const login = async (req, res, next) => {
                     throw new Error('Something went wrong')
                 }
                 if(result === true) {
-                    res.status(200).json({ status: true, message: 'Logged in Successfully'});
+                    res.status(200).json({ status: true, message: 'Logged in Successfully', token: generateAccessToken(emailCheck[0].id, emailCheck[0].username)});
                 }
                 else {
                     return res.json({ status: false, message: 'Password is incorrect'})
