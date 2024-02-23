@@ -28,7 +28,39 @@ const signup = async (req, res, next) => {
     }
 }
 
+const login = async (req, res, next) => {
+    try{
+        const email = req.body.email;
+        const password = req.body.password;
+        const emailCheck = await User.findAll({ where : {email: email}});
+        if (emailCheck.length > 0){
+            bcrypt.compare(password, emailCheck[0].password, (err, result) => {
+                if(err) {
+                    throw new Error('Something went wrong')
+                }
+                if(result === true) {
+                    res.status(200).json({ status: true, message: 'Logged in Successfully'});
+                }
+                else {
+                    return res.json({ status: false, message: 'Password is incorrect'})
+                }
+            })
+        }else {
+            res.json({ status: false, message: 'User does not exist'})
+        }
+        
+    } 
+    catch(err) {
+        res.status(404).json({err: err});
+    }    
+}
+
+
+
+
+
 
 module.exports = {
-    signup
+    signup,
+    login
 }

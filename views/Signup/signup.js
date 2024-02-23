@@ -27,6 +27,7 @@ async function userSignup(event) {
         console.log(err.response.data.err);
         const parent = document.getElementById('error');
         const child = `${err.response.data.err}`;
+        parent.innerHTML = ''
         parent.innerHTML = parent.innerHTML + child;
 
     }
