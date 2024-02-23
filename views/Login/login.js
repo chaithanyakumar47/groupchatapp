@@ -21,6 +21,14 @@ async function userSignin(event) {
             // window.location.href = "../Expense/expense.html";
             // a.textContent = 'Add/Check Expenses'
             alert('Logged in Successfully');
+            await axios.get('http://localhost:3000/chat')
+            .then(response => {
+                document.body.innerHTML = response.data; // Replace entire page content
+            })
+            .catch(error => {
+                console.error(error);
+            });
+
             
         } else {
             const errorElement = document.getElementById('error');

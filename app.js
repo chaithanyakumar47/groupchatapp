@@ -4,6 +4,7 @@ require('dotenv').config()
 const path = require('path')
 const bodyParser = require('body-parser');
 const app = express();
+const fs = require('fs')
 
 const sequelize = require('./util/database');
 const User = require('./Models/user');
@@ -15,14 +16,26 @@ app.use(bodyParser.json({ extended: false}));
 
 app.use('/user', userRoutes);
 
+app.get('/chat', async (req, res) => {
+    try {
+        const data = await fs.promises.readFile('C:/Users/kumar/Desktop/Group-chat App/messages.txt', 'utf-8')
+
+        const formatted = data.split('\n').map(line => `<p>${line}</p>`).join('');
+        console.log('Reached here')
+        res.send(`<html><head><title>Chat</title><h1 style="text-align: center">Chat App</h1></head><body>${formatted}</body></html>`);
+            
+       
+    } catch (err) {
+        console.log(err);
+    }
+})
+
 app.use((req, res) => {
     console.log(req.url)
     res.sendFile(path.join(__dirname, `views/${req.url}`))
 })
 
-app.get('', (req, res) => {
-    res.send('<h1>This works<h1>');
-})
+
 
 sequelize
 .sync()

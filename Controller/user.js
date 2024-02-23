@@ -1,6 +1,7 @@
 const User = require('../Models/user');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
+const fs = require('fs')
 
 
 function generateAccessToken(id, name) {    
@@ -15,11 +16,10 @@ const signup = async (req, res, next) => {
         const email = req.body.email;
         const phone = req.body.phone;
         const password = req.body.password;
-        const check = User.findOne({ where: { email: email}})
+        const check = await User.findOne({ where: { email: email}})
+        
         if(!check){
-
             bcrypt.hash(password, 10, async(err, hash) => {
-                console.log(err);
                 const data = await User.create( { username: username, email: email, phone: phone, password: hash });
                 res.status(201).json(data);
             })
@@ -46,6 +46,8 @@ const login = async (req, res, next) => {
                     throw new Error('Something went wrong')
                 }
                 if(result === true) {
+                    const content = `${emailCheck[0].username} joined\n`
+                    fs.writeFileSync('C:/Users/kumar/Desktop/Group-chat App/messages.txt',content, { flag: 'a'})
                     res.status(200).json({ status: true, message: 'Logged in Successfully', token: generateAccessToken(emailCheck[0].id, emailCheck[0].username)});
                 }
                 else {
