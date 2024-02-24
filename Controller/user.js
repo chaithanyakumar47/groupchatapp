@@ -1,4 +1,5 @@
 const User = require('../Models/user');
+const Messages = require('../Models/messages');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs')
@@ -64,6 +65,39 @@ const login = async (req, res, next) => {
     }    
 }
 
+const chat = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const message = req.body.message;
+        const data = await Messages.create({ message: message, userId: userId});
+        res.status(201).json(data);
+    } catch (err) {
+        res.json(err);
+        console.log(err)
+    }
+
+
+}
+
+const getChats = async (req, res) => {
+    try {
+        const data = await Messages.findAll({
+            include: {
+              model: User,
+              attributes: ['username'], 
+            },
+          });
+          
+        res.status(200).json(data)
+    } catch (err) {
+        res.status(404).json(err)
+        console.log(err);
+    }
+    
+}
+
+
+
 
 
 
@@ -71,5 +105,7 @@ const login = async (req, res, next) => {
 
 module.exports = {
     signup,
-    login
+    login,
+    chat,
+    getChats
 }

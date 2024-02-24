@@ -18,16 +18,17 @@ async function userSignin(event) {
             // const a = document.getElementById('expense');
             // a.setAttribute('href','expense.html');
             localStorage.setItem('token', data.data.token);
-            // window.location.href = "../Expense/expense.html";
+            
             // a.textContent = 'Add/Check Expenses'
             alert('Logged in Successfully');
-            await axios.get('http://localhost:3000/chat')
-            .then(response => {
-                document.body.innerHTML = response.data; // Replace entire page content
-            })
-            .catch(error => {
-                console.error(error);
-            });
+            window.location.href = "../Chat/chat.html";
+            // await axios.get('http://localhost:3000/chat')
+            // .then(response => {
+            //     document.body.innerHTML = response.data; // Replace entire page content
+            // })
+            // .catch(error => {
+            //     console.error(error);
+            // });
 
             
         } else {

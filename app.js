@@ -8,6 +8,7 @@ const fs = require('fs')
 
 const sequelize = require('./util/database');
 const User = require('./Models/user');
+const Messages = require('./Models/messages');
 
 const userRoutes = require('./Routes/user')
 
@@ -35,6 +36,9 @@ app.use((req, res) => {
     res.sendFile(path.join(__dirname, `views/${req.url}`))
 })
 
+
+User.hasMany(Messages);
+Messages.belongsTo(User);
 
 
 sequelize
