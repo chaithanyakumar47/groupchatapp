@@ -31,7 +31,18 @@ window.addEventListener("DOMContentLoaded", async () => {
         const token = localStorage.getItem('token');
         const data = await axios.get(`http://localhost:3000/user/getChats`, { headers: { 'Authorization': token}})
         getChats(data.data)
-        console.log(data)
+        
+        setInterval(async () => {
+            try {
+              const refreshedData = await axios.get(`http://localhost:3000/user/getChats`, {
+                headers: { 'Authorization': token }
+              });
+              getChats(refreshedData.data);
+            } catch (error) {
+              console.error('Error fetching chats:', error);
+            }
+          }, 1000); // Call API every second
+
     } catch (err) {
         console.log(err)
     }
