@@ -3,6 +3,7 @@ const Messages = require('../Models/messages');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const fs = require('fs')
+const { Op } = require("sequelize");
 
 
 function generateAccessToken(id, name) {    
@@ -81,7 +82,15 @@ const chat = async (req, res) => {
 
 const getChats = async (req, res) => {
     try {
+        const chatId = req.params.chatId
+        
+        
         const data = await Messages.findAll({
+            where: {
+                id: {
+                  [Op.gt]: chatId
+                }
+              },
             include: {
               model: User,
               attributes: ['username'], 
