@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat</title>
+    <style>
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #f2f2f2;
+         }
+
+         form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            width: 500px;
+            margin: auto;
+         }
+
+         input {
+            display: inline-block;
+            width: 70%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+         }
+
+         button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+         }
+
+         button:hover {
+            background-color: #0062cc;
+         }
+
+         #messages {
+            margin-top: 30px;
+            list-style: none;
+            padding: 0;
+         }
+
+         #messages li {
+            background-color: #fff;;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+         }
+    </style>
+</head>
+<body>
+    <form onsubmit="sendMessage(event)" method="POST">
+    <input type="text" name="message" placeholder="Type your Message">
+    <button type="submit">Send Message</button>
+    </form>
+    <ul id="messages">
+
+    </ul>
+<script>
+   async function sendMessage(event) {
+  event.preventDefault();
+  const url = window.location.href
+  const lastNumber = url.slice(-1); 
+
+
+  const number = parseInt(lastNumber, 10);
+
+  console.log(number);
+  const groupId = number;
+  const message = event.target.message.value;
+  const messageData = {
+      message,
+      
+  }
+
+  try {
+      const token = localStorage.getItem('token')
+      const data = await axios.post(`http://localhost:3000/group/sendMessage/${groupId}`,messageData, { headers: { 'Authorization': token }});
+      console.log(data)
+  } catch (err) {
+      console.log(err)
+  }
+
+}
+
+function getChats(chatData) {
+  const parent = document.getElementById('messages');
+  parent.innerHTML = ''
+  for(let i=0; i<chatData.length; i++) {
+      const child = `<li>${chatData[i].user.username} : ${chatData[i].message}</li>`
+      parent.innerHTML+=child;
+  }
+}
+
+
+
+
+window.addEventListener("DOMContentLoaded", async () => {
+try {
+  
+  
+  const url = window.location.href
+  const lastNumber = url.slice(-1); 
+
+
+  const number = parseInt(lastNumber, 10);
+
+  console.log(number);
+  const groupId = number;
+  
+//   const chatId = savedChats.length > 0 ? savedChats[savedChats.length - 1].id : 0;
+  
+  const token = localStorage.getItem('token');
+  const response = await axios.get(`http://localhost:3000/group/getChats/${groupId}`, { headers: { 'Authorization': token } });
+  const data = response.data;
+
+  
+//   const recentChats = data.slice(0, Math.min(data.length, 10)); 
+
+  
+//   const stringifiedData = JSON.stringify(recentChats);
+//   localStorage.setItem("chats", stringifiedData);
+
+  
+  getChats(data);
+
+  
+  setInterval(async () => {
+    try {
+      
+      
+      const newResponse = await axios.get(`http://localhost:3000/group/getChats/${groupId}`, { headers: { 'Authorization': token } });
+      const newChats = newResponse.data;
+      getChats(newChats);
+
+    } catch (error) {
+      console.error('Error fetching new chats:', error);
+    }
+  }, 3000); 
+} catch (err) {
+  console.error('Error in chat handling:', err);
+}
+});
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.5.1/axios.min.js"></script>
+
+</body>
+</html>

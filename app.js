@@ -9,13 +9,16 @@ const fs = require('fs')
 const sequelize = require('./util/database');
 const User = require('./Models/user');
 const Messages = require('./Models/messages');
+const Group = require('./Models/group');
 
 const userRoutes = require('./Routes/user')
+const groupRoutes = require('./Routes/group');
 
 app.use(cors());
 app.use(bodyParser.json({ extended: false}));
 
 app.use('/user', userRoutes);
+app.use('/group', groupRoutes)
 
 app.get('/chat', async (req, res) => {
     try {
@@ -38,6 +41,9 @@ app.use((req, res) => {
 
 
 User.hasMany(Messages);
+User.belongsToMany(Group, { through: 'user_group'});
+Group.belongsToMany(User, { through: 'user_group'})
+Group.hasMany(Messages);
 Messages.belongsTo(User);
 
 
