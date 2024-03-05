@@ -51,6 +51,20 @@
             border-radius: 5px;
             margin-bottom: 10px;
          }
+
+         #members {
+            margin-top: 30px;
+            list-style: none;
+            padding: 0;
+         }
+
+         #members li {
+            background-color: #fff;;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+         }
+
     </style>
 </head>
 <body>
@@ -58,6 +72,9 @@
     <input type="text" name="message" placeholder="Type your Message">
     <button type="submit">Send Message</button>
     </form>
+    <ul id="members">
+
+    </ul>
     <ul id="messages">
 
     </ul>
@@ -88,6 +105,56 @@
 
 }
 
+async function makeAdmin(userId, groupId) {
+  try {
+    const token = localStorage.getItem('token')
+
+    const group = {
+      userId,
+      groupId
+    }
+    const data = await axios.post('http://localhost:3000/group/makeAdmin', group, { headers: { 'Authorization': token }});
+    alert(`${data.data.message}`)
+    
+  } catch (err) {
+    console.log(err);
+  }
+  
+}
+
+async function deleteMember(userId, groupId) {
+  const token = localStorage.getItem('token')
+  try {
+    const group = {
+      userId,
+      groupId
+    }
+    const data = await axios.post('http://localhost:3000/group/delete', group, { headers: { 'Authorization': token }});
+    console.log(data.data.message)
+    alert(`${data.data.message}`)
+    
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+function displayMembers(groupData) {
+  const parent = document.getElementById('members');
+  parent.innerHTML = '';
+  console.log(groupData[0])
+  for(let i=0; i<groupData[0].users.length;i++) {
+
+    if(groupData[0].users[i].groupAdmin.isAdmin){
+      const child = `<li>Username: ${groupData[0].users[i].username}<button onclick="deleteMember(${groupData[0].users[i].id}, ${groupData[0].id})">Delete Member</button></li>`
+      parent.innerHTML+=child;
+      console.log("User Name: ",groupData[0].users[i].username, " ", "admin: ", groupData[0].users[i].groupAdmin.isAdmin)
+    } else {
+      const child = `<li>Username: ${groupData[0].users[i].username} <button onclick="makeAdmin(${groupData[0].users[i].id}, ${groupData[0].id})">Make Admin</button><button onclick="deleteMember(${groupData[0].users[i].id}, ${groupData[0].id})">Delete Member</button></li>`
+      parent.innerHTML+=child
+    }
+  }
+}
+
 function getChats(chatData) {
   const parent = document.getElementById('messages');
   parent.innerHTML = ''
@@ -102,6 +169,7 @@ function getChats(chatData) {
 
 window.addEventListener("DOMContentLoaded", async () => {
 try {
+
   
   
   const url = window.location.href
@@ -114,6 +182,11 @@ try {
   const groupId = number;
   
 //   const chatId = savedChats.length > 0 ? savedChats[savedChats.length - 1].id : 0;
+
+  const newData = await axios.get(`http://localhost:3000/group/members/${groupId}`);
+  // console.log(newData)
+  const groupData = newData.data
+  displayMembers(groupData);
   
   const token = localStorage.getItem('token');
   const response = await axios.get(`http://localhost:3000/group/getChats/${groupId}`, { headers: { 'Authorization': token } });

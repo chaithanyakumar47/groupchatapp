@@ -1,23 +1,32 @@
 const User = require('../Models/user');
 const Messages = require('../Models/messages');
 const Group = require('../Models/group');
+const groupAdmin = require('../Models/groupadmin');
 
 const createGroup = async (req, res) => {
+
     try {
-
-        const groupName = req.body.groupName;
-        const newGroup = await Group.create({
-            groupName: groupName
-        });
-        await req.user.addGroup(newGroup);
-        res.status(201).json({ message: 'Group created', group: newGroup});
+  
+      const groupName = req.body.groupName;
+  
+      const newGroup = await Group.create({
+        groupName: groupName 
+      });
+  
+      // Make group creator an admin
+      await newGroup.addUser(req.user, {through: {isAdmin: true}});
+  
+      res.status(201).json({
+        message: 'Group created',
+        group: newGroup
+      });
+  
     } catch (err) {
-        res.status(400).json(err)
-        console.log(err);
+      console.log(err);
+      res.status(400).json(err);
     }
-
-
-}
+  
+  }
 
 const displayGroups = async (req, res) => {
     try {
@@ -51,16 +60,16 @@ const addUserToGroup = async (req, res, next) => {
       // Check if user is already in the group
       const isMember = await group.hasUser(user); // Utilize belongsToMany association method
       if (isMember) {
-        return res.json({ message: 'User is already in the group' });
+        return res.json({ message: 'You already joined this group' });
       }
   
       // Add the user to the group using belongsToMany
-      await group.addUser(user);
+      await group.addUser(user, {through: {isAdmin: false}});
   
-      res.status(200).json({ message: 'User added to the group successfully!' });
+      res.status(200).json({ message: 'Joined group successfully!' });
     } catch (err) {
-      console.error('Error adding user to group:', err);
-      res.status(500).json({ message: 'Failed to add user to group' });
+      console.error('Error joining group:', err);
+      res.status(500).json({ message: 'Failed to join group' });
     }
   };
 
@@ -115,6 +124,91 @@ const sendMessage = async (req, res) => {
 
 
 }
+
+const getMembers = async (req, res) => {
+  
+  const groupId = req.params.groupId;
+
+    try {
+      const groups = await Group.findAll({
+        where: {id: groupId},
+        include: [{
+          model: User,
+          as: 'users', 
+          attributes: ['id', 'username'] 
+        }]
+      });
+      res.status(200).json(groups)
+
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+const makeAdmin = async (req, res) => {
+  try {
+    const userId = req.user.id;
+    const targetUserId = req.body.userId;
+    const groupId = req.body.groupId;
+    const user = await groupAdmin.findOne({
+      where: {
+        userId: userId
+      }
+    });
+    if (user.isAdmin === true ){
+      
+      const data = await groupAdmin.update(
+        { isAdmin: true }, 
+        {
+          where: {
+            userId: targetUserId,
+            groupId: groupId
+          }
+        } 
+      );
+      res.status(200).json({message: 'Action Successfull'})
+    } else {
+      console.log('Not an Admin')
+      res.status(200).json({message: 'You must be an Admin!'})
+    }
+
+    
+    
+  } catch (err) {
+    res.status(500).json(err)
+    console.log(err)
+  }
+}
+
+const deleteMember = async (req, res) => {
+  const userId = req.user.id;
+  
+  const targetUserId = req.body.userId;
+  
+  const groupId = req.body.groupId;
+  const user = await groupAdmin.findOne({
+    where: {
+      userId: userId
+    }
+  });
+  
+  if (user.isAdmin === true ){
+    console.log("Can be done >>>");
+    await groupAdmin.destroy({
+      where: {
+        userId: targetUserId,
+        groupId: groupId
+      },
+    })
+    res.status(200).json({message: 'User deleted'})
+  } else {
+    console.log('Not an Admin')
+    res.status(200).json({message: 'You must be an Admin!'})
+  }
+  
+}
   
 
 module.exports = {
@@ -123,6 +217,9 @@ module.exports = {
     addUserToGroup,
     showchatPage,
     getChats,
-    sendMessage
+    sendMessage,
+    getMembers,
+    makeAdmin,
+    deleteMember
 }
 

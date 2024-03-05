@@ -80,7 +80,7 @@ function showGroups(groups) {
     userNames = userNames.slice(0, -2);
 
     // Create the list item with the group name and formatted usernames
-    const child = `<li>${group.groupName} | Members: ${userNames}   <button onclick="joinGroup(${group.id})">Join</button>  <button onclick="showGroupChats(${group.id})">View Messages</button></li>`;
+    const child = `<li>${group.groupName} | Members: ${userNames}   <button onclick="joinGroup(${group.id})">Join</button>  <button onclick="showGroupChats(${group.id})">View</button></li>`;
     parent.innerHTML += child;
   }
 }
