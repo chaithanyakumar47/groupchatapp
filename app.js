@@ -1,9 +1,14 @@
 const express = require('express');
+
 var cors = require('cors');
 require('dotenv').config()
 const path = require('path')
 const bodyParser = require('body-parser');
 const app = express();
+const http = require('http');
+const server = http.createServer(app)
+const { Server } = require('socket.io');
+const io = new Server(server);
 const fs = require('fs')
 
 const sequelize = require('./util/database');
@@ -14,10 +19,24 @@ const GroupAdmin = require('./Models/groupadmin')
 
 const userRoutes = require('./Routes/user')
 const groupRoutes = require('./Routes/group');
-;
+
+
+io.on('connection', (socket) => {
+    socket.on('room-number', room => {
+        socket.join(room);
+    })
+    socket.on('client-send-message', (data) => {
+        
+        
+        io.to(data.room).emit('server-send-message', data);
+        
+    });
+
+});
 
 app.use(cors());
 app.use(bodyParser.json({ extended: false}));
+
 
 app.use('/user', userRoutes);
 app.use('/group', groupRoutes)
@@ -53,5 +72,5 @@ Messages.belongsTo(User);
 sequelize
 .sync()
 .then(result => {
-    app.listen(3000);
+    server.listen(3000);
 }).catch(err => console.log(err));

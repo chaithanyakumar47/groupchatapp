@@ -50,7 +50,7 @@ const login = async (req, res, next) => {
                 if(result === true) {
                     const content = `${emailCheck[0].username} joined\n`
                     fs.writeFileSync('C:/Users/kumar/Desktop/Group-chat App/messages.txt',content, { flag: 'a'})
-                    res.status(200).json({ status: true, message: 'Logged in Successfully', token: generateAccessToken(emailCheck[0].id, emailCheck[0].username)});
+                    res.status(200).json({ status: true, message: 'Logged in Successfully', token: generateAccessToken(emailCheck[0].id, emailCheck[0].username), username: emailCheck[0].username});
                 }
                 else {
                     return res.json({ status: false, message: 'Password is incorrect'})

@@ -12,6 +12,7 @@ const authenticate = (req, res, next) => {
         User.findByPk(user.userId).then(user => {
             req.user = user;
             console.log('User verification Successful')
+            console.log('Username >>>', req.user.username)
             next();
         }).catch(err => { throw new Error(err)})
     } catch (err) {

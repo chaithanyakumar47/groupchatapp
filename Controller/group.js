@@ -3,6 +3,8 @@ const Messages = require('../Models/messages');
 const Group = require('../Models/group');
 const groupAdmin = require('../Models/groupadmin');
 
+const io = require('socket.io')(require('../app'));
+
 const createGroup = async (req, res) => {
 
     try {
@@ -111,6 +113,12 @@ const getChats = async (req, res) => {
 }
 
 const sendMessage = async (req, res) => {
+  // const username =  req.user.username;
+  // var test1 = 'test1';
+  // var test2 = 'test2';
+
+
+
     try {
         const userId = req.user.id;
         const groupId = req.params.groupId

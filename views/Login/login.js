@@ -18,6 +18,7 @@ async function userSignin(event) {
             // const a = document.getElementById('expense');
             // a.setAttribute('href','expense.html');
             localStorage.setItem('token', data.data.token);
+            localStorage.setItem('username', data.data.username);
             
             // a.textContent = 'Add/Check Expenses'
             alert('Logged in Successfully');
