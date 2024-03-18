@@ -15,8 +15,11 @@ const sequelize = require('./util/database');
 const User = require('./Models/user');
 const Messages = require('./Models/messages');
 const Group = require('./Models/group');
+const Archived = require('./Models/archived');
 const GroupAdmin = require('./Models/groupadmin')
 
+const cronService =  require('./services/cron');
+cronService.job.start();
 const userRoutes = require('./Routes/user')
 const groupRoutes = require('./Routes/group');
 
