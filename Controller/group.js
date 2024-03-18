@@ -2,8 +2,29 @@ const User = require('../Models/user');
 const Messages = require('../Models/messages');
 const Group = require('../Models/group');
 const groupAdmin = require('../Models/groupadmin');
+const S3services = require('../services/S3services');
 
 const io = require('socket.io')(require('../app'));
+
+function base64ToFile(base64String, fileName, filetype) {
+  return new Promise((resolve, reject) => {
+    try {
+      const bytes = atob(base64String.split(',')[1]); // Remove the data:image/png;base64 header
+      const arrayBuffer = new ArrayBuffer(bytes.length);
+      const uint8Array = new Uint8Array(arrayBuffer);
+
+      for (let i = 0; i < bytes.length; i++) {
+        uint8Array[i] = bytes.charCodeAt(i);
+      }
+
+      const blob = new Blob([uint8Array], { type: filetype }); // Adjust the type based on your image format
+      const file = new File([blob], fileName, { type: filetype });
+      resolve(file);
+    } catch (error) {
+      reject(error);
+    }
+  });
+}
 
 const createGroup = async (req, res) => {
 
@@ -123,8 +144,22 @@ const sendMessage = async (req, res) => {
         const userId = req.user.id;
         const groupId = req.params.groupId
         const message = req.body.message;
-        const data = await Messages.create({ message: message, userId: userId, groupId: groupId});
-        res.status(201).json(data);
+        const image = req.file;
+        
+        
+        if (image){
+          const filename = `chat-images/group${groupId}/user${userId}/${Date.now()}_${image.originalname}`;
+          const imageUrl = await S3services.uploadToS3(image.buffer, filename)
+          const data = await Messages.create({ message: message, userId: userId, groupId: groupId, imageUrl: imageUrl });
+          res.status(201).json(data);
+        } else if(message) {
+
+          const data = await Messages.create({ message: message, userId: userId, groupId: groupId});
+          res.status(201).json(data);
+        }
+
+        
+        
     } catch (err) {
         res.json(err);
         console.log(err)

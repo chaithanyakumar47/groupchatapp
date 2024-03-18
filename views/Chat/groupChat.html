@@ -9,6 +9,9 @@
             font-family: Arial, sans-serif;
             background-color: #f2f2f2;
          }
+         img {
+          width: 300px;
+         }
 
          form {
             background-color: #fff;
@@ -68,8 +71,9 @@
     </style>
 </head>
 <body>
-    <form onsubmit="sendMessage(event)" method="POST">
+    <form onsubmit="sendMessage(event)" method="POST" enctype="multipart/form-data">
     <input type="text" id="message" name="message" placeholder="Type your Message">
+    <input type="file" id="image-input" name="image" accept="image/*">
     <button type="submit" id="sendBtn">Send Message</button>
     </form>
     <ul id="members">
@@ -87,20 +91,56 @@ const room = parseInt(lastNumber, 10);
 
 socket.emit('room-number',room);
 
+function getBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
+    reader.readAsDataURL(file);
+
+    reader.onload = function () {
+      resolve(reader.result);
+    };
+
+    reader.onerror = function (error) {
+      reject(error);
+    };
+  });
+}
 
 const messageInput =  document.getElementById('message');
 const sendBtn = document.getElementById('sendBtn');
+const imageInput = document.getElementById('image-input')
 
-sendBtn.addEventListener('click', (e) => {
+sendBtn.addEventListener('click', async (e) => {
+
+  
   const username = localStorage.getItem('username');
-  const message = messageInput.value;
+  // const message = messageInput.value;
+
   const url = window.location.href
   const lastNumber = url.slice(-1); 
 
 
-  const room = parseInt(lastNumber, 10);
-  socket.emit('client-send-message', { username, message, room})
+  const file = imageInput.files[0];
+  if(file && file.type.startsWith('image/')){
+
+    const base64Image = await  getBase64(file);
+    const message = {
+      chat: messageInput.value,
+      image: base64Image
+    }
+    const room = parseInt(lastNumber, 10);
+    socket.emit('client-send-message', { username, message, room})
+  
+  } else{
+    const message = {
+      chat: messageInput.value,
+      
+    }
+    const room = parseInt(lastNumber, 10);
+    socket.emit('client-send-message', { username, message, room})
+  }
+
   
 })
 
@@ -121,23 +161,35 @@ getChatsLive(data.username, data.message)
   event.preventDefault();
   const url = window.location.href
   const lastNumber = url.slice(-1); 
-
-
   const number = parseInt(lastNumber, 10);
-
-  console.log(number);
   const groupId = number;
   const message = event.target.message.value;
+  const imageInput = document.getElementById('image-input')
+  const file = imageInput.files[0];
   
-  const messageData = {
-      message,
-      
-  }
-
   try {
+    if (file && file.type.startsWith('image/')){
+      const filename = file.name;
+      const filetype = file.type;
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('imageType',filetype );
+      formData.append('imageName', filename);
+      const token = localStorage.getItem('token')
+      const data = await axios.post(`http://localhost:3000/group/sendMessage/${groupId}`,formData, { headers: { 'Authorization': token }});
+    } else{
+  
+      const messageData = {
+          message      
+      }
       const token = localStorage.getItem('token')
       const data = await axios.post(`http://localhost:3000/group/sendMessage/${groupId}`,messageData, { headers: { 'Authorization': token }});
-      console.log(data)
+    }
+  
+    
+    
+      
+      
   } catch (err) {
       console.log(err)
   }
@@ -195,17 +247,30 @@ function displayMembers(groupData) {
 }
 
 function getChatsLive(username, message) {
+  if(message.image){
   const parent = document.getElementById('messages');
-  const child = `<li>${username}: ${message}</li>`
+  const child = `<li>${username}: <img src="${message.image}"></li>`
   parent.innerHTML+= child;
+  } else{
+
+    const parent = document.getElementById('messages');
+    const child = `<li>${username}: ${message.chat}</li>`
+    parent.innerHTML+= child;
+  }
 }
 
 function getChats(chatData) {
   const parent = document.getElementById('messages');
   parent.innerHTML = ''
   for(let i=0; i<chatData.length; i++) {
+    if(chatData[i].imageUrl){
+      const child = `<li>${chatData[i].user.username} : <img src="${chatData[i].imageUrl}"></li>`;
+      parent.innerHTML+=child;
+    } else{
       const child = `<li>${chatData[i].user.username} : ${chatData[i].message}</li>`
       parent.innerHTML+=child;
+    }
+      
   }
 }
 

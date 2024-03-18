@@ -20,6 +20,12 @@ const GroupAdmin = require('./Models/groupadmin')
 const userRoutes = require('./Routes/user')
 const groupRoutes = require('./Routes/group');
 
+const multer = require('multer');
+const upload = multer({dest: './uploads/'})
+app.post('/test/upload', upload.single('image'), (req, res) => {
+    res.json(req.file)
+})
+
 
 io.on('connection', (socket) => {
     socket.on('room-number', room => {
@@ -27,15 +33,18 @@ io.on('connection', (socket) => {
     })
     socket.on('client-send-message', (data) => {
         
-        
+        // console.log(data.message.image)
+        if(data.message.image){
+            console.log('Image received!!!')
+        }
         io.to(data.room).emit('server-send-message', data);
-        
+         console.log('Image sent') 
     });
 
 });
 
 app.use(cors());
-app.use(bodyParser.json({ extended: false}));
+app.use(bodyParser.json({ limit: '10mb', extended: false}));
 
 
 app.use('/user', userRoutes);
