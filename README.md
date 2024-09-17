@@ -66,9 +66,7 @@ After starting the server:
 4. Share images within the chat
 5. Admins can manage the group and appoint other admins
 
-## Contributing
 
-Contributions are always welcome! Please read the [contribution guidelines](CONTRIBUTING.md) first.
 
 
 
