@@ -70,7 +70,5 @@ After starting the server:
 
 Contributions are always welcome! Please read the [contribution guidelines](CONTRIBUTING.md) first.
 
-## License
 
-[MIT](https://choosealicense.com/licenses/mit/)
 
