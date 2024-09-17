@@ -28,7 +28,7 @@ A real-time group chat application with user authentication and image sharing ca
 - Login
   ![Login Page](screenshots/login/login.png)
 - Groups
-  ![Groups Page](screenshots/expenses/groups.png)
+  ![Groups Page](screenshots/groups/groups.png)
 - Messages
   ![Message Page](screenshots/messages/messages.png)
 
