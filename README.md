@@ -21,8 +21,14 @@ A real-time group chat application with user authentication and image sharing ca
 
 ## Screenshots
 
-- Home page
-  (screenshots/home/home.png)
+- Home 
+  ![Home Page](screenshots/home/home.png)
+- Signup
+  ![Login Page](screenshots/signup/signup.png)
+- Login
+  ![Login Page](screenshots/login/login.png)
+- Expenses
+  ![Expense Page](screenshots/expenses/expenses.png)
 
 ## Run Locally
 
