@@ -19,6 +19,11 @@ A real-time group chat application with user authentication and image sharing ca
 - Cloud Services: Amazon S3 for image storage
 - Cron Service for archiving functionality
 
+## Screenshots
+
+- Home page
+  (screenshots/home/home.png)
+
 ## Run Locally
 
 Clone the project
